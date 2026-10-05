@@ -1,0 +1,69 @@
+{
+  "spec": 1,
+  "id": "beacon",
+  "name": "Weft Beacon",
+  "version": "1.0.0",
+  "description": "Announces itself on the Weft mesh with a message of your choice, and answers on /health. The simplest provider: anything on the mesh (Weft Pulse, for one) finds it without being told.",
+  "author": "The Weft Architecture",
+  "homepage": "https://github.com/alexd-aero/weft/tree/main/examples/beacon",
+  "license": "MIT",
+  "logo": "logo.svg",
+  "requires": {
+    "forge": ">=1.10.0",
+    "burrow": ">=2.0.0",
+    "os": [
+      "linux"
+    ],
+    "commands": [
+      "bash",
+      "python3",
+      "curl"
+    ]
+  },
+  "scripts": {
+    "detect": "weft/detect.sh",
+    "install": "weft/install.sh",
+    "update": "weft/install.sh",
+    "uninstall": "weft/uninstall.sh",
+    "status": "weft/status.sh"
+  },
+  "actions": [
+    {
+      "id": "restart",
+      "label": "Restart",
+      "script": "weft/restart.sh"
+    },
+    {
+      "id": "mesh",
+      "label": "Show the mesh",
+      "script": "weft/show-mesh.sh"
+    }
+  ],
+  "settings": [
+    {
+      "key": "PORT",
+      "label": "Port",
+      "type": "number",
+      "default": 8792,
+      "min": 1024,
+      "max": 65535
+    },
+    {
+      "key": "MESSAGE",
+      "label": "Message",
+      "type": "text",
+      "default": "All quiet on this machine",
+      "help": "What it announces on the mesh."
+    }
+  ],
+  "links": [
+    {
+      "label": "The Weft Architecture",
+      "url": "https://github.com/alexd-aero/weft"
+    },
+    {
+      "label": "This example, explained",
+      "url": "https://github.com/alexd-aero/weft/tree/main/examples/beacon#readme"
+    }
+  ]
+}

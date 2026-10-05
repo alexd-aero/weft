@@ -1,0 +1,80 @@
+{
+  "spec": 1,
+  "id": "relay",
+  "name": "Weft Relay",
+  "version": "1.0.0",
+  "description": "Gives every web addon on the Weft mesh its own HTTPS address through Burrow, behind the gate's login (or public), and announces those addresses back on the mesh. Burrow only: it talks to Burrow's control socket.",
+  "author": "The Weft Architecture",
+  "homepage": "https://github.com/alexd-aero/weft/tree/main/examples/relay",
+  "license": "MIT",
+  "logo": "logo.svg",
+  "platforms": [
+    "burrow"
+  ],
+  "requires": {
+    "burrow": ">=2.0.0",
+    "os": [
+      "linux"
+    ],
+    "commands": [
+      "bash",
+      "python3",
+      "curl"
+    ]
+  },
+  "scripts": {
+    "detect": "weft/detect.sh",
+    "install": "weft/install.sh",
+    "update": "weft/install.sh",
+    "uninstall": "weft/uninstall.sh",
+    "status": "weft/status.sh"
+  },
+  "actions": [
+    {
+      "id": "restart",
+      "label": "Restart",
+      "script": "weft/restart.sh"
+    },
+    {
+      "id": "sync",
+      "label": "Publish the mesh now",
+      "script": "weft/sync.sh"
+    }
+  ],
+  "settings": [
+    {
+      "key": "PORT",
+      "label": "Port",
+      "type": "number",
+      "default": 8795,
+      "min": 1024,
+      "max": 65535
+    },
+    {
+      "key": "ACCESS",
+      "label": "Who can open them",
+      "type": "select",
+      "default": "login",
+      "options": [
+        {
+          "value": "login",
+          "label": "Signed in to the gate"
+        },
+        {
+          "value": "public",
+          "label": "Anyone with the link"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "label": "The Weft Architecture",
+      "url": "https://github.com/alexd-aero/weft"
+    },
+    {
+      "label": "This example, explained",
+      "url": "https://github.com/alexd-aero/weft/tree/main/examples/relay#readme"
+    }
+  ]
+}

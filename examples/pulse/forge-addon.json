@@ -1,0 +1,66 @@
+{
+  "spec": 1,
+  "id": "pulse",
+  "name": "Weft Pulse",
+  "version": "1.0.0",
+  "description": "A live board of the Weft mesh: every addon that announced itself, whether it answers, what it provides, the desktops Weft Shelf lists and the public addresses Weft Relay made. Its host registers itself with it too (integration.dir).",
+  "author": "The Weft Architecture",
+  "homepage": "https://github.com/alexd-aero/weft/tree/main/examples/pulse",
+  "license": "MIT",
+  "logo": "logo.svg",
+  "requires": {
+    "forge": ">=1.10.0",
+    "burrow": ">=2.0.0",
+    "os": [
+      "linux"
+    ],
+    "commands": [
+      "bash",
+      "python3",
+      "curl"
+    ]
+  },
+  "scripts": {
+    "detect": "weft/detect.sh",
+    "install": "weft/install.sh",
+    "update": "weft/install.sh",
+    "uninstall": "weft/uninstall.sh",
+    "status": "weft/status.sh"
+  },
+  "actions": [
+    {
+      "id": "restart",
+      "label": "Restart",
+      "script": "weft/restart.sh"
+    }
+  ],
+  "settings": [
+    {
+      "key": "PORT",
+      "label": "Port",
+      "type": "number",
+      "default": 8793,
+      "min": 1024,
+      "max": 65535
+    },
+    {
+      "key": "TITLE",
+      "label": "Board title",
+      "type": "text",
+      "default": "The mesh"
+    }
+  ],
+  "integration": {
+    "dir": "~/.config/weft/integrations"
+  },
+  "links": [
+    {
+      "label": "The Weft Architecture",
+      "url": "https://github.com/alexd-aero/weft"
+    },
+    {
+      "label": "This example, explained",
+      "url": "https://github.com/alexd-aero/weft/tree/main/examples/pulse#readme"
+    }
+  ]
+}

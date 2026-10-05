@@ -1,0 +1,59 @@
+{
+  "spec": 1,
+  "id": "shelf",
+  "name": "Weft Shelf",
+  "version": "1.0.0",
+  "description": "Lists the Linux desktops of the Selkies Forge it runs in, with their links, and announces them on the Weft mesh, so Weft Pulse (and anything else) can show them. Selkies Forge only: it reads the Forge's API.",
+  "author": "The Weft Architecture",
+  "homepage": "https://github.com/alexd-aero/weft/tree/main/examples/shelf",
+  "license": "MIT",
+  "logo": "logo.svg",
+  "platforms": [
+    "selkies-forge"
+  ],
+  "requires": {
+    "forge": ">=1.10.0",
+    "os": [
+      "linux"
+    ],
+    "commands": [
+      "bash",
+      "python3",
+      "curl"
+    ]
+  },
+  "scripts": {
+    "detect": "weft/detect.sh",
+    "install": "weft/install.sh",
+    "update": "weft/install.sh",
+    "uninstall": "weft/uninstall.sh",
+    "status": "weft/status.sh"
+  },
+  "actions": [
+    {
+      "id": "restart",
+      "label": "Restart",
+      "script": "weft/restart.sh"
+    }
+  ],
+  "settings": [
+    {
+      "key": "PORT",
+      "label": "Port",
+      "type": "number",
+      "default": 8794,
+      "min": 1024,
+      "max": 65535
+    }
+  ],
+  "links": [
+    {
+      "label": "The Weft Architecture",
+      "url": "https://github.com/alexd-aero/weft"
+    },
+    {
+      "label": "This example, explained",
+      "url": "https://github.com/alexd-aero/weft/tree/main/examples/shelf#readme"
+    }
+  ]
+}

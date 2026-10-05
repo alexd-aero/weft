@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="330" viewBox="0 0 1200 330" role="img" aria-label="The Weft Architecture: one addon format, every host">
+  <title>The Weft Architecture</title>
+  <defs>
+    <linearGradient id="wt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e1932"/><stop offset="1" stop-color="#07060b"/></linearGradient>
+    <linearGradient id="wi" gradientUnits="userSpaceOnUse" x1="24" y1="0" x2="104" y2="0"><stop offset="0" stop-color="#a98bff"/><stop offset=".5" stop-color="#e3d8ff"/><stop offset="1" stop-color="#a98bff"/></linearGradient>
+    <radialGradient id="wg" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#c9b8ff" stop-opacity=".24"/><stop offset="1" stop-color="#c9b8ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <defs>
+    <radialGradient id="bglow" cx=".2" cy=".05" r=".7"><stop offset="0" stop-color="#a98bff" stop-opacity=".2"/><stop offset="1" stop-color="#a98bff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="fade" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".8" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <mask id="m"><rect width="1200" height="330" fill="url(#fade)"/></mask>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c9b8ff" stop-opacity="0"/><stop offset=".5" stop-color="#c9b8ff" stop-opacity=".6"/><stop offset="1" stop-color="#c9b8ff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="ttl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9ccff"/></linearGradient>
+  </defs>
+  <rect width="1200" height="330" rx="22" fill="#06050a"/>
+  <g mask="url(#m)"><path d="M24 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M72 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M120 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M168 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M216 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M264 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M312 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M360 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M408 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M456 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M504 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M552 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M600 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M648 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M696 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M744 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M792 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M840 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M888 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M936 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M984 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M1032 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M1080 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M1128 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M1176 0v330" stroke="#c9b8ff" stroke-opacity=".035" stroke-width="2"/><path d="M0 24h1200" stroke="#fff" stroke-opacity=".025" stroke-width="2"/><path d="M0 72h1200" stroke="#fff" stroke-opacity=".025" stroke-width="2"/><path d="M0 120h1200" stroke="#fff" stroke-opacity=".025" stroke-width="2"/><path d="M0 168h1200" stroke="#fff" stroke-opacity=".025" stroke-width="2"/><path d="M0 216h1200" stroke="#fff" stroke-opacity=".025" stroke-width="2"/><path d="M0 264h1200" stroke="#fff" stroke-opacity=".025" stroke-width="2"/><path d="M0 312h1200" stroke="#fff" stroke-opacity=".025" stroke-width="2"/></g>
+  <rect width="1200" height="330" rx="22" fill="url(#bglow)"/>
+  <rect x=".5" y=".5" width="1199" height="329" rx="21.5" fill="none" stroke="#c9b8ff" stroke-opacity=".14"/>
+  <path d="M300 .5h600" stroke="url(#edge)"/>
+  <g transform="translate(66 68) scale(1.4375)"><rect x="3" y="3" width="122" height="122" rx="30" fill="url(#wt)"/>
+  <rect x="3" y="3" width="122" height="122" rx="30" fill="url(#wg)"/>
+  <rect x="3.5" y="3.5" width="121" height="121" rx="29.5" fill="none" stroke="#fff" stroke-opacity=".14"/>
+  <path d="M38 6.5h52" stroke="#fff" stroke-opacity=".45" stroke-linecap="round"/>
+  <!-- the warp: three threads that stay put -->
+  <path d="M44 26v76M64 26v76M84 26v76" stroke="#efeaff" stroke-opacity=".9" stroke-width="7" stroke-linecap="round"/>
+  <!-- the weft: three threads woven across them, over and under -->
+  <path d="M30 44h68M30 64h68M30 84h68" stroke="#16122a" stroke-width="14"/>
+  <path d="M26 44h76M26 64h76M26 84h76" stroke="url(#wi)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M44 53v22" stroke="#16122a" stroke-width="14"/><path d="M64 33v22" stroke="#16122a" stroke-width="14"/><path d="M64 73v22" stroke="#16122a" stroke-width="14"/><path d="M84 53v22" stroke="#16122a" stroke-width="14"/>
+  <path d="M44 53v22" stroke="#efeaff" stroke-opacity=".9" stroke-width="7" stroke-linecap="round"/><path d="M64 33v22" stroke="#efeaff" stroke-opacity=".9" stroke-width="7" stroke-linecap="round"/><path d="M64 73v22" stroke="#efeaff" stroke-opacity=".9" stroke-width="7" stroke-linecap="round"/><path d="M84 53v22" stroke="#efeaff" stroke-opacity=".9" stroke-width="7" stroke-linecap="round"/>
+</g>
+  <g font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif">
+    <text x="296" y="132" font-size="78" font-weight="750" letter-spacing="-3" fill="url(#ttl)">Weft<tspan font-weight="300" fill="#8f86ad" letter-spacing="-1.5" dx="16">Architecture</tspan></text>
+    <text x="299" y="174" font-size="22" fill="#9a93b3">One addon format. Every host. Addons that find each other.</text>
+  </g>
+  <g font-family="'JetBrains Mono', 'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="14" fill="#b5adcf">
+    <g transform="translate(299 204)"><rect width="168" height="32" rx="16" fill="#c9b8ff" fill-opacity=".08" stroke="#c9b8ff" stroke-opacity=".3"/><text x="16" y="21">forge-addon.json</text></g>
+    <g transform="translate(479 204)"><rect width="160" height="32" rx="16" fill="none" stroke="#fff" stroke-opacity=".16"/><circle cx="18" cy="16" r="5" fill="#5aa6ff"/><text x="31" y="21">Selkies Forge</text></g>
+    <g transform="translate(651 204)"><rect width="168" height="32" rx="16" fill="none" stroke="#fff" stroke-opacity=".16"/><circle cx="18" cy="16" r="5" fill="#e8eaed"/><text x="31" y="21">Aegis × Burrow</text></g>
+    <g transform="translate(831 204)"><rect width="128" height="32" rx="16" fill="none" stroke="#fff" stroke-opacity=".16"/><circle cx="18" cy="16" r="5" fill="#3ddc97"/><text x="31" y="21">the mesh</text></g>
+    <g transform="translate(971 204)"><rect width="182" height="32" rx="16" fill="none" stroke="#fff" stroke-opacity=".16"/><text x="16" y="21">.zip · git · GitLab</text></g>
+  </g>
+  <g font-family="'DejaVu Sans Mono', monospace" font-size="12.5" fill="#6f6890"><text x="1135" y="300" text-anchor="end">node tools/weft-check.mjs my-addon --publish</text></g>
+</svg>

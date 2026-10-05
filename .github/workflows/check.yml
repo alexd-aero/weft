@@ -1,0 +1,12 @@
+name: check
+on: [push, pull_request]
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: weft-check (static) and the full lifecycle on both hosts
+        env: { WEFT_NO_SYSTEMD: "1" }
+        run: bash tools/test.sh
