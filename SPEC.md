@@ -45,6 +45,7 @@ An addon is **one folder** with a file named `forge-addon.json` at its root, plu
 | `settings` | no | list ≤ 16 | See below |
 | `integration` | no | `{"dir": "~/…"}` | A folder under `~/` where the host drops a file describing itself. See [9](#9-integrations) |
 | `links` | no | list ≤ 6 of `{label ≤ 40, url}` | |
+| `burrow` | no | `{"extension"?: path, "ui"?: path}` | Burrow only (2.8.0+), ignored elsewhere. See [10](#10-host-apis) |
 
 Unknown top-level fields are ignored. Newer manifests still load in older hosts.
 
@@ -121,7 +122,7 @@ Every host sets these, and passes the rest of its own environment through:
 
 - **Twins.** Every `ADDON_X` above (except `ADDON_HOST*`) is also set as `FORGE_ADDON_X`, for scripts written before spec 1 had universal names. New scripts SHOULD read `ADDON_*`.
 - **Selkies Forge** adds `FORGE_URL`, `FORGE_API`, `FORGE_HOME`, `FORGE_VERSION`, `FORGE_BIND`, `FORGE_PORT` and `FORGE_ARCH`.
-- **Burrow** adds `BURROW_SOCKET`. When a Selkies Forge has registered with it, Burrow also adds `FORGE_URL`, `FORGE_API` and `FORGE_HOME`.
+- **Burrow** adds `BURROW_SOCKET` (2.8.0+: the short path when the data folder is deep, so curl takes it) and `BURROW_NODE` (the Node.js Burrow runs on). When a Selkies Forge has registered with it, Burrow also adds `FORGE_URL`, `FORGE_API` and `FORGE_HOME`.
 
 ## 6. Talking back
 
@@ -180,10 +181,12 @@ With `"integration": {"dir": "~/.config/myapp/integrations"}`, a host keeps one 
 
 ## 10. Host APIs
 
+**Burrow extensions.** An addon installed on Burrow 2.8.0+ whose manifest has `"burrow": {"extension": "x.mjs"}` runs that ES module inside Burrow while it is installed (its scripts already run as the same user, so this grants nothing new). Burrow calls `start(ctx)` when it is installed or updated and `stop()` before it goes; `ctx` has `dataDir`, `setting(KEY)`, `domain()`, `dns()` (the linked zone's records, read-only), `log()` and `tunnels` (`list`, and `create`, `update`, `remove` for the tunnels this addon made, which carry `app: <id>`). `handle({method, path, query, json(), unseal(), via})` answers `/__gate/api/x/<id>/…` on the dashboard (signed in) and `/x/<id>/…` on the control socket, with `{status, json}` or `{status, body, type}`. `"ui": "y.js"` is an ES module the Burrow page imports: `card(ctx)` returns the HTML of the addon's card, `wire(el, ctx)` runs after each paint. [Burrow Pages](https://github.com/alexd-aero/burrow-pages) is the reference.
+
 | Host | API | Who may call it |
 |---|---|---|
 | Selkies Forge | HTTP at `FORGE_API` (`instances`, `instance/NAME/start\|stop\|restart`, `addons`, …; see its [API docs](https://github.com/adatskov-wcpss/animated-fiesta/blob/main/docs/api.md)) | Anything on this machine. JSON bodies, no foreign `Origin` |
-| Aegis × Burrow | Plain HTTP on the Unix socket `BURROW_SOCKET` (mode 600): `GET /status`, `GET\|POST /tunnels`, `GET\|PATCH\|DELETE /tunnels/PORT`, `POST /module` | The same user. Callers SHOULD send `X-Burrow-Client: <id>/<version>` |
+| Aegis × Burrow | Plain HTTP on the Unix socket `BURROW_SOCKET` (mode 600): `GET /status`, `GET\|POST /tunnels`, `GET\|PATCH\|DELETE /tunnels/PORT`, `POST /module`, `GET /dns` (the linked domain's DNS records, read-only), `/x/<id>/…` (an extension's routes) | The same user. Callers SHOULD send `X-Burrow-Client: <id>/<version>` |
 
 An addon that needs a host API MUST say so with `platforms`.
 
