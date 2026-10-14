@@ -8,6 +8,17 @@
   "homepage": "https://github.com/alexd-aero/weft/tree/main/examples/hello-weft",
   "license": "MIT",
   "logo": "logo.svg",
+  "update_card": {
+    "theme": "teal",
+    "icon": "spark",
+    "title": "{name} {version} is here",
+    "tagline": "The example addon, a little friendlier.",
+    "highlights": [
+      "Pick its port and its greeting in Settings",
+      "Restart it from its card"
+    ],
+    "button": "Update to {version}"
+  },
   "requires": {
     "forge": ">=1.10.0",
     "burrow": ">=2.0.0",

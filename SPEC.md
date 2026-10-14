@@ -46,6 +46,7 @@ An addon is **one folder** with a file named `forge-addon.json` at its root, plu
 | `integration` | no | `{"dir": "~/…"}` | A folder under `~/` where the host drops a file describing itself. See [9](#9-integrations) |
 | `links` | no | list ≤ 6 of `{label ≤ 40, url}` | |
 | `burrow` | no | `{"extension"?: path, "ui"?: path}` | Burrow only (2.8.0+), ignored elsewhere. See [10](#10-host-apis) |
+| `update_card` | no | object | How hosts dress this addon's update card: colours, style, badge, icon, words, highlights, urgency. See [2.1](#21-update-cards) |
 
 Unknown top-level fields are ignored. Newer manifests still load in older hosts.
 
@@ -67,6 +68,45 @@ An addon SHOULD set `forge` exactly when it runs on Selkies Forge, and `burrow` 
 - `type` is one of `text`, `number`, `bool`, `select`, `password`.
 - A `select` MUST have `options`.
 - A host shows a password setting back as `••••••••`. Sending that mask back keeps the stored value.
+
+### 2.1 Update cards
+
+When a host finds a newer version of an installed addon, it shows an update card (Aegis × Burrow: on the home page and above the addon's section on the Burrow page). `update_card` lets each release dress its own card. The host reads it from the **new** version's manifest, so a release can say what it brings; without one, the host's default card is shown. Every key is optional:
+
+| Key | Type and limits | Meaning |
+|---|---|---|
+| `theme` | `green` (default), `blue`, `red`, `orange`, `amber`, `purple`, `pink`, `teal`, `gray` | The card's colour |
+| `accent` | `"#rrggbb"` | A colour of your own. Wins over `theme`; the host derives the lighter and darker shades and the text colour on it |
+| `style` | `glow` (default), `solid`, `outline`, `minimal` | How loud the card is: a glowing gradient, a filled card, a coloured outline, or a slim bar |
+| `urgency` | `normal` (default), `recommended`, `important`, `security`, `critical` | `security` and `critical` default to `red`, a shield and a line asking to install soon; `important` to `orange`; `recommended` to a RECOMMENDED badge. Your own `theme`, `badge` and `icon` still win |
+| `badge` | text ≤ 14 | The chip beside the title (default `NEW`; `""` for none) |
+| `icon` | `download` (default), `shield`, `bolt`, `spark`, `heart`, `star`, `wrench`, `rocket`, `lock`, `bug` | The icon in the card's orb |
+| `title` | text ≤ 80 | Replaces "‹name› update". `{name}`, `{version}` (the new one) and `{from}` (the installed one) are filled in |
+| `tagline` | text ≤ 140 | One line under the title |
+| `highlights` | list ≤ 5 of text ≤ 100 | What's new, shown as bullets |
+| `button` | text ≤ 24 | The update button's words, e.g. `"Update to {version}"` |
+| `notes` | http(s) URL | Release notes: a "Release notes" button opens it |
+
+Any other key is an error; `weft-check` names it. Example:
+
+```json
+"update_card": {
+  "urgency": "security",
+  "title": "{name} {version}: a security fix",
+  "tagline": "Closes a gap in the payload check.",
+  "highlights": ["Blocks a new phishing-kit scan", "Bans repeat offenders faster"],
+  "notes": "https://github.com/you/your-addon/releases"
+}
+```
+
+Hosts:
+
+- MUST treat every text in it as plain text (escaped, never HTML) and MAY shorten it to fit.
+- MUST NOT let a missing, unreadable or invalid `update_card` in a new version hold the update back: that version simply gets the default card. An invalid `update_card` in an installed manifest is refused like any other field.
+- SHOULD keep the card's controls (update, later, what's new) the same whatever the dressing, and keep text readable on the chosen colour.
+- MAY ignore `update_card` (Selkies Forge does today); the card then looks like the host's own.
+
+`node tools/weft-card.mjs <folder>` writes a preview of the card as an HTML page, every style side by side.
 
 ## 3. Sources
 
@@ -203,6 +243,7 @@ A host refuses an addon, with a message saying exactly what to fix, when:
 - `platforms` has an unknown host, or `requires.forge`/`requires.burrow` doesn't look like `>=1.2.3`;
 - there are more than 8 actions or 16 settings, a setting key is duplicated, or a `select` has no options;
 - `integration.dir` isn't under `~/`;
+- `update_card` has an unknown key, a value outside its list, a text too long, or an `accent` that isn't `#rrggbb`;
 - an archive breaks any rule in [3](#3-sources).
 
 It won't **install** an addon made for another platform, or one this machine fails (`requires`), and it says why on the card.

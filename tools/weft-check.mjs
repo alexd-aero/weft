@@ -90,6 +90,30 @@ function coerce(st, v) {
   return v;
 }
 
+// update_card (SPEC 2.1): the same rules as Burrow's addons.mjs cleanUpdateCard
+const CARD_THEMES = ["green", "blue", "red", "orange", "amber", "purple", "pink", "teal", "gray"];
+const CARD_STYLES = ["glow", "solid", "outline", "minimal"];
+const CARD_URGENCY = ["normal", "recommended", "important", "security", "critical"];
+const CARD_ICONS = ["download", "shield", "bolt", "spark", "heart", "star", "wrench", "rocket", "lock", "bug"];
+function cleanUpdateCard(c) {
+  if (c == null) return null;
+  if (typeof c !== "object" || Array.isArray(c)) fail('"update_card" must be an object');
+  const out = {};
+  const pick = (k, list) => { if (c[k] == null) return; if (!list.includes(c[k])) fail(`update_card.${k} must be one of ${list.join(", ")}`); out[k] = c[k]; };
+  const str = (k, max) => { if (c[k] == null) return; if (typeof c[k] !== "string") fail(`update_card.${k} must be text`); if (c[k].trim().length > max) fail(`update_card.${k} is longer than ${max} characters`); out[k] = c[k].trim(); };
+  pick("theme", CARD_THEMES); pick("style", CARD_STYLES); pick("urgency", CARD_URGENCY); pick("icon", CARD_ICONS);
+  if (c.accent != null) { if (!/^#[0-9a-fA-F]{6}$/.test(String(c.accent))) fail('update_card.accent must look like "#ff5a52"'); out.accent = String(c.accent).toLowerCase(); }
+  str("badge", 14); str("title", 80); str("tagline", 140); str("button", 24);
+  if (c.highlights != null) {
+    if (!Array.isArray(c.highlights) || c.highlights.length > 5 || !c.highlights.every((x) => typeof x === "string" && x.trim() && x.trim().length <= 100)) fail("update_card.highlights must be up to 5 lines of at most 100 characters");
+    out.highlights = c.highlights.map((x) => x.trim());
+  }
+  if (c.notes != null) out.notes = url(c.notes, "update_card.notes");
+  const unknown = Object.keys(c).filter((k) => !["theme", "accent", "style", "urgency", "badge", "icon", "title", "tagline", "highlights", "button", "notes"].includes(k));
+  if (unknown.length) fail(`update_card: unknown key "${unknown[0]}"`);
+  return Object.keys(out).length ? out : null;
+}
+
 function loadManifest(root) {
   const path = join(root, MANIFEST);
   let size;
@@ -112,6 +136,7 @@ function loadManifest(root) {
   m.license = text(d, "license", 40);
   m.homepage = d.homepage ? url(d.homepage, '"homepage"') : "";
   m.logo = d.logo ? image(root, d.logo, '"logo"') : "";
+  m.update_card = cleanUpdateCard(d.update_card);
 
   const scripts = d.scripts;
   if (!scripts || typeof scripts !== "object" || !scripts.install) fail('forge-addon.json needs "scripts": {"install": "..."}');
@@ -213,6 +238,16 @@ function check(folder, { publish }) {
   if (m.platforms.includes("burrow") && !m.requires.burrow) warnings.push('runs on Burrow: add "requires": {"burrow": ">=2.0.0"}');
   if (!m.platforms.includes("selkies-forge") && m.requires.forge) warnings.push("requires.forge is set, but it isn't made for Selkies Forge");
   if (!m.platforms.includes("burrow") && m.requires.burrow) warnings.push("requires.burrow is set, but it isn't made for Burrow");
+  const card = m.update_card;
+  if (card) {
+    notes.push(`update card: ${card.accent || card.theme || "green"}, ${card.style || "glow"}${card.urgency && card.urgency !== "normal" ? `, ${card.urgency}` : ""}${card.highlights ? `, ${card.highlights.length} highlight${card.highlights.length === 1 ? "" : "s"}` : ""} (preview: node tools/weft-card.mjs ${folder})`);
+    if ((card.urgency === "security" || card.urgency === "critical") && !card.highlights && !card.notes && !card.tagline) warnings.push(`update_card: a ${card.urgency} update should say what it fixes (tagline, highlights or notes)`);
+    if (card.accent) {
+      const n = parseInt(card.accent.slice(1), 16), lum = (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+      if (lum < 0.12) warnings.push(`update_card.accent ${card.accent} is very dark: it barely shows on a dark dashboard`);
+    }
+    if (card.title && !/\{name\}/.test(card.title) && !card.title.toLowerCase().includes(m.name.toLowerCase())) warnings.push("update_card.title doesn't name the addon: add {name} so people know what is updating");
+  }
   const readme = ["README.md", "readme.md"].map((n) => join(root, n)).find(existsSync);
   const text = readme ? readFileSync(readme, "utf8") : "";
   const missing = CREDITS.filter(([re]) => !re.test(text)).map(([, what]) => what);

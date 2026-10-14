@@ -46,6 +46,7 @@ Check every one before you finish:
 - [ ] `requires.forge` (`">=1.10.0"`) exactly when it runs on Selkies Forge; `requires.burrow` (`">=2.0.0"`) exactly when it runs on Burrow; `requires.commands` lists every program the scripts call that isn't bash or coreutils.
 - [ ] `logo` (if any): .svg/.png/.webp/.jpg, ≤ 512 KB, square, with its own background.
 - [ ] Text limits: `name` ≤ 60, `description` ≤ 600, `author` ≤ 80, `license` ≤ 40.
+- [ ] `update_card` (optional, [SPEC 2.1](SPEC.md#21-update-cards)): when a release deserves it, say what it brings: a `tagline`, up to 5 `highlights`, `urgency` (`security` only for real security fixes, and then say what it fixes), a `theme` or `accent` that fits the addon. Only the listed keys; texts within their limits. Preview it with `node tools/weft-card.mjs <folder>`.
 
 ## 4. The scripts: hard rules
 
