@@ -153,9 +153,16 @@ A script that needs a password prompt hangs until its timeout. Scripts run unatt
 - MUST NOT run a root script on its own: automatic installs, update checks, the watchdog and "start it" repairs skip it and leave a notice instead.
 - reads `update` from the **new** version's manifest: a new version that starts needing root is asked for before its code replaces the old.
 
+**In the user's terminal.** A host MAY run a root script in the user's own terminal instead, for example when it can't get root itself (a sandboxed service: `NoNewPrivileges=`, `ProtectSystem=`, no sudo). Aegis × Burrow 2.35.0+ does this for `aegis addons install|update|uninstall ID` and `aegis addons action ID ACTION` (automatically when it can't get root, or with `--here`); its dashboard then shows that command to copy. The host still makes and owns the job: it hands the script step over once, on its control socket only, the terminal runs `bash <script>` from `ADDON_DIR` with the same `ADDON_*` variables and `ADDON_ROOT=1`, streams the lines back (directives work as always) and reports the exit code, and the host finishes the job as if it had run it. An update's new version is staged first and only stays if that run succeeds. In that case:
+
+- stdin is the terminal (a TTY), and `SUDO_ASKPASS` and `ADDON_ASKPASS_TOKEN` are **not** set: a plain `sudo` asks for the password right there.
+- So a script SHOULD call `sudo -A …` when `SUDO_ASKPASS` is set and plain `sudo …` otherwise, e.g. `if [ -n "${SUDO_ASKPASS:-}" ]; then SUDO=(sudo -A); else SUDO=(sudo); fi; "${SUDO[@]}" systemctl restart postfix`.
+- Never `read` from stdin for anything else: the same script also runs with stdin closed.
+
 For the script:
 
 - `sudo` resets the environment: pass what the root side needs, e.g. `sudo -A env ADDON_DATA="$ADDON_DATA" bash "$ADDON_DIR/weft/root-part.sh"`, or `sudo -A install -m 644 …` one command at a time.
+- Pick the sudo for where it runs: `sudo -A` with `SUDO_ASKPASS` (the host hands the password over), plain `sudo` without it (the user's terminal asks).
 - Check `ADDON_ROOT` first. A host without root support (Selkies Forge, Burrow before 2.33.0) ignores `requires.root` and the action's `root`, so the manifest still loads, but the script then runs without `SUDO_ASKPASS` and `sudo -A` stops at once ("no askpass program specified") instead of hanging. Say why and exit: `[ "${ADDON_ROOT:-0}" = 1 ] || sudo -n true 2>/dev/null || { echo "::warn this needs root: install it from Aegis × Burrow 2.33+ (it asks), or run sudo bash install.sh"; exit 1; }`. An addon that needs root SHOULD also set `"requires": {"burrow": ">=2.33.0"}`.
 - `detect` and `status` never get root: keep them read-only.
 
@@ -178,8 +185,8 @@ Every host sets these, and passes the rest of its own environment through:
 | `ADDON_BIND` | The address the host listens on. Listen on the same one |
 | `ADDON_SCAN` | `1` while a scan probes `detect` and `status` |
 | `ADDON_ROOT` | `1` when the user gave this job root ([4](#root)), else `0` |
-| `ADDON_ASKPASS_TOKEN` | Root jobs only: what the askpass helper hands the host. Valid while this job runs |
-| `SUDO_ASKPASS` | Root jobs only: the host's askpass helper, an absolute path. Use `sudo -A` |
+| `ADDON_ASKPASS_TOKEN` | Root jobs run by the host only: what the askpass helper hands the host. Valid while this job runs |
+| `SUDO_ASKPASS` | Root jobs run by the host only: the host's askpass helper, an absolute path. Use `sudo -A`. Unset when the script runs in the user's terminal: use plain `sudo` |
 
 - **Twins.** Every `ADDON_X` above (except `ADDON_HOST*`, `ADDON_ROOT` and `ADDON_ASKPASS_TOKEN`) is also set as `FORGE_ADDON_X`, for scripts written before spec 1 had universal names. New scripts SHOULD read `ADDON_*`.
 - A host MUST NOT pass `ADDON_ROOT`, `ADDON_ASKPASS_TOKEN` or `SUDO_ASKPASS` through from its own environment: only a root job gets them.
@@ -248,7 +255,7 @@ With `"integration": {"dir": "~/.config/myapp/integrations"}`, a host keeps one 
 | Host | API | Who may call it |
 |---|---|---|
 | Selkies Forge | HTTP at `FORGE_API` (`instances`, `instance/NAME/start\|stop\|restart`, `addons`, …; see its [API docs](https://github.com/adatskov-wcpss/animated-fiesta/blob/main/docs/api.md)) | Anything on this machine. JSON bodies, no foreign `Origin` |
-| Aegis × Burrow | Plain HTTP on the Unix socket `BURROW_SOCKET` (mode 600): `GET /status`, `GET\|POST /tunnels`, `GET\|PATCH\|DELETE /tunnels/PORT`, `POST /module`, `GET /dns` (the linked domain's DNS records, read-only), `/x/<id>/…` (an extension's routes); 2.29+: `GET /addons`, `GET /addons/updates`, `POST /addons/check`, `POST /addons/add {source}`, `POST /addons/<id>/install\|update\|uninstall\|action\|check\|autorestart`, `GET /addons/jobs/<job>`; 2.33+: a root operation takes `{password}` (without one, when sudo asks: `428 {needsRoot, reason, passwordless: false}`; wrong: `403 {badPassword}`; no sudo here: `403 {noSudo, why}`), `GET /addons/<id>/root` (`{needsRoot, reason, needs, sudo, passwordless, why}`), and `POST /askpass {"token"}` (the askpass helper's: the running job's password as text, else `404`; only on this socket, never on the dashboard) | The same user. Callers SHOULD send `X-Burrow-Client: <id>/<version>` |
+| Aegis × Burrow | Plain HTTP on the Unix socket `BURROW_SOCKET` (mode 600): `GET /status`, `GET\|POST /tunnels`, `GET\|PATCH\|DELETE /tunnels/PORT`, `POST /module`, `GET /dns` (the linked domain's DNS records, read-only), `/x/<id>/…` (an extension's routes); 2.29+: `GET /addons`, `GET /addons/updates`, `POST /addons/check`, `POST /addons/add {source}`, `POST /addons/<id>/install\|update\|uninstall\|action\|check\|autorestart`, `GET /addons/jobs/<job>`; 2.33+: a root operation takes `{password}` (without one, when sudo asks: `428 {needsRoot, reason, passwordless: false}`; wrong: `403 {badPassword}`; no sudo here: `403 {noSudo, why}`), `GET /addons/<id>/root` (`{needsRoot, reason, needs, sudo, passwordless, why}`), and `POST /askpass {"token"}` (the askpass helper's: the running job's password as text, else `404`; only on this socket, never on the dashboard); 2.35+: `POST /addons/<id>/runspec {op, action?, keep_data?}` (a root job's script step for the user's terminal, once: `{job, token, script, cwd, env, expires}`), `POST /addons/jobs/<job>/line {token, lines}` and `POST /addons/jobs/<job>/done {token, code}` (`403` without the job's token, `410` once it isn't waiting: cancelled, done, or two hours passed) | The same user. Callers SHOULD send `X-Burrow-Client: <id>/<version>` |
 
 An addon that needs a host API MUST say so with `platforms`.
 

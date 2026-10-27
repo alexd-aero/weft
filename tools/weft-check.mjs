@@ -11,7 +11,7 @@
 //   - weft/lib.sh and weft/mesh.py, when present, identical to tools/;
 //   - requires.forge / requires.burrow match "platforms";
 //   - sudo only in scripts the manifest says need root (requires.root, an
-//     action's "root": true), and there as `sudo -A`;
+//     action's "root": true), and there as `sudo -A` (or chosen by SUDO_ASKPASS);
 //   - no machine-specific paths (/home/<you>, /Users/…) in scripts;
 //   - the credits (README.md naming the Weft Architecture, Selkies Forge and
 //     Aegis × Burrow): a warning, or an error with --publish.
@@ -244,8 +244,9 @@ function check(folder, { publish }) {
     const SUDO = /(?:^|[;&|(`!]|\b(?:then|do|else|exec|time)\s)\s*sudo(?=[\s)]|$)/;
     const sudoLines = text.split("\n").map((l) => l.replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""').replace(/(^|\s)#.*$/, "")).filter((l) => SUDO.test(l));
     if (sudoLines.length && !rootScripts.has(rel)) warnings.push(`${rel}: sudo: hosts run scripts unattended, as you; a password prompt hangs until the timeout. Declare "requires": {"root": "why"} (or "root": true on the action) and call sudo -A`);
-    else if (sudoLines.some((l) => !/\bsudo\s+(?:-[A-Za-z]*[An][A-Za-z]*|--askpass|--non-interactive)\b/.test(l))) {
-      warnings.push(`${rel}: call sudo as "sudo -A …": the host hands the password over through SUDO_ASKPASS; a plain sudo has no terminal to ask on`);
+    // a script that picks by SUDO_ASKPASS (sudo -A from the host, plain sudo in the user's terminal) is fine
+    else if (!/\bSUDO_ASKPASS\b/.test(text) && sudoLines.some((l) => !/\bsudo\s+(?:-[A-Za-z]*[An][A-Za-z]*|--askpass|--non-interactive)\b/.test(l))) {
+      warnings.push(`${rel}: call sudo as "sudo -A …" when SUDO_ASKPASS is set (the host hands the password over) and plain sudo when it isn't (the user's terminal): a plain sudo under a host has no terminal to ask on`);
     }
   }
   if (!m.scripts.status) warnings.push("no status script: hosts can only say \"installed\", never running or stopped");
