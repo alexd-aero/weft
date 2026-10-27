@@ -10,6 +10,8 @@
 //   - every script it names: present, a bash shebang, `bash -n` clean;
 //   - weft/lib.sh and weft/mesh.py, when present, identical to tools/;
 //   - requires.forge / requires.burrow match "platforms";
+//   - sudo only in scripts the manifest says need root (requires.root, an
+//     action's "root": true), and there as `sudo -A`;
 //   - no machine-specific paths (/home/<you>, /Users/…) in scripts;
 //   - the credits (README.md naming the Weft Architecture, Selkies Forge and
 //     Aegis × Burrow): a warning, or an error with --publish.
@@ -149,7 +151,8 @@ function loadManifest(root) {
   for (const a of d.actions || []) {
     if (!a || typeof a !== "object" || !ACTION_RE.test(String(a.id || ""))) fail('every action needs an "id" (lowercase letters, digits, dashes)');
     if (SCRIPTS.includes(a.id)) fail(`action "${a.id}" has the name of a lifecycle script`);
-    m.actions.push({ id: a.id, label: text(a, "label", 24, true), script: inside(root, a.script, `actions.${a.id}.script`), confirm: text(a, "confirm", 200) });
+    if (a.root != null && typeof a.root !== "boolean") fail(`actions.${a.id}.root must be true or false`);
+    m.actions.push({ id: a.id, label: text(a, "label", 24, true), script: inside(root, a.script, `actions.${a.id}.script`), confirm: text(a, "confirm", 200), root: a.root === true });
   }
   if (m.actions.length > 8) fail("at most 8 actions");
   m.settings = [];
@@ -189,6 +192,12 @@ function loadManifest(root) {
     commands: (req.commands || []).map(String).filter((x) => /^[A-Za-z0-9._+-]+$/.test(x)),
   };
   for (const h of ["forge", "burrow"]) if (m.requires[h] && !/^(>=)?\s*\d+(\.\d+){0,2}$/.test(m.requires[h])) fail(`requires.${h} must look like ">=1.10.0"`);
+  // why install/update/uninstall need root (SPEC §4 "Root"): text, shown to the user before they run
+  if (req.root != null) {
+    if (typeof req.root !== "string" || !req.root.trim()) fail('requires.root must be text: why the addon needs root, e.g. "Installs and configures Postfix"');
+    if (req.root.trim().length > 200) fail("requires.root is longer than 200 characters");
+  }
+  m.requires.root = req.root == null ? "" : req.root.trim();
   m.integration = {};
   if (d.integration && Object.keys(d.integration).length) {
     const p = String(d.integration.dir || "");
@@ -218,12 +227,26 @@ function check(folder, { publish }) {
   try { m = loadManifest(root); notes.push(`${m.id} ${m.version}: ${m.name} · platforms ${m.platforms.join(" + ")}`); }
   catch (e) { errors.push(e.message); return { folder, ok: false, errors, warnings, notes }; }
   const scripts = [...Object.values(m.scripts), ...m.actions.map((a) => a.script)];
+  // the scripts a host runs with root access (SUDO_ASKPASS): install/update/uninstall with requires.root, and root actions
+  const rootScripts = new Set([...(m.requires.root ? ["install", "update", "uninstall"].map((k) => m.scripts[k]).filter(Boolean) : []),
+                               ...m.actions.filter((a) => a.root).map((a) => a.script)]);
+  if (m.requires.root) notes.push(`needs root for install, update and uninstall: ${m.requires.root}`);
+  const rootActions = m.actions.filter((a) => a.root).map((a) => a.id);
+  if (rootActions.length) notes.push(`actions that need root: ${rootActions.join(", ")}`);
+  if (rootActions.length && !m.requires.root) warnings.push('an action needs root but "requires.root" doesn\'t say why: hosts then show only the action\'s name');
   for (const rel of new Set(scripts)) {
     const p = join(root, rel), text = readFileSync(p, "utf8");
     if (!/^#!\/(usr\/)?bin\/(env )?bash/.test(text)) warnings.push(`${rel}: start it with #!/usr/bin/env bash (hosts run it with bash anyway)`);
     try { execFileSync("bash", ["-n", p], { stdio: "pipe" }); } catch (e) { errors.push(`${rel}: bash -n: ${String(e.stderr || e.message).trim().split("\n")[0]}`); }
     if (/\/home\/[a-z_][a-z0-9_-]*\/|\/Users\/[A-Za-z]/.test(text)) errors.push(`${rel}: a machine-specific path (/home/…): use ADDON_DIR, ADDON_DATA or $HOME`);
-    if (/\bsudo\b/.test(text)) warnings.push(`${rel}: sudo: hosts run scripts unattended, as you; a password prompt hangs until the timeout`);
+    // sudo: only where the manifest says root (the host then sets SUDO_ASKPASS), and always as sudo -A (or -n)
+    // (sudo as a command: quoted text and comments don't count)
+    const SUDO = /(?:^|[;&|(`!]|\b(?:then|do|else|exec|time)\s)\s*sudo(?=[\s)]|$)/;
+    const sudoLines = text.split("\n").map((l) => l.replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""').replace(/(^|\s)#.*$/, "")).filter((l) => SUDO.test(l));
+    if (sudoLines.length && !rootScripts.has(rel)) warnings.push(`${rel}: sudo: hosts run scripts unattended, as you; a password prompt hangs until the timeout. Declare "requires": {"root": "why"} (or "root": true on the action) and call sudo -A`);
+    else if (sudoLines.some((l) => !/\bsudo\s+(?:-[A-Za-z]*[An][A-Za-z]*|--askpass|--non-interactive)\b/.test(l))) {
+      warnings.push(`${rel}: call sudo as "sudo -A …": the host hands the password over through SUDO_ASKPASS; a plain sudo has no terminal to ask on`);
+    }
   }
   if (!m.scripts.status) warnings.push("no status script: hosts can only say \"installed\", never running or stopped");
   if (!m.scripts.uninstall) warnings.push("no uninstall script: uninstalling only forgets it");

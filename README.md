@@ -90,7 +90,7 @@ node tools/weft-card.mjs my-addon -o card.html # how its update card will look (
 
 | Tool | What it does |
 |---|---|
-| `tools/weft-check.mjs` | Validates statically, with the hosts' own rules: the manifest, scripts (`bash -n`, shebang, no machine-specific paths), vendored helpers, `platforms` vs `requires`, credits. Runs nothing |
+| `tools/weft-check.mjs` | Validates statically, with the hosts' own rules: the manifest, scripts (`bash -n`, shebang, no machine-specific paths), vendored helpers, `platforms` vs `requires`, `sudo` only where the manifest declares root (and as `sudo -A`), credits. Runs nothing |
 | `tools/weft-card.mjs` | Draws the addon's update card as an HTML page, in its style and every other one, from `update_card` ([SPEC 2.1](SPEC.md#21-update-cards)): theme or your own accent colour, style, urgency, badge, icon, title, tagline, highlights, button, release notes |
 | `tools/weft-run.mjs` | Plays a host: the same environment and directives, data in `.weft-dev/`. `--host`, `--set KEY=V`, `--adopt`, `--purge`, `--bind` |
 | `tools/lib.sh` · `tools/mesh.py` | The shared helpers every example vendors as `weft/lib.sh` and `weft/mesh.py`: services, config, health, the mesh, pages |

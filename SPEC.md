@@ -41,7 +41,7 @@ An addon is **one folder** with a file named `forge-addon.json` at its root, plu
 | `replaces` | no | list ≤ 8 of ids | Addons this one supersedes. Scans hide copies of those |
 | `requires` | no | object | See below |
 | `scripts` | **yes** | object | `install` is required; `detect`, `update`, `uninstall`, `status` are optional. Any other key is an error |
-| `actions` | no | list ≤ 8 of `{id, label ≤ 24, script, confirm? ≤ 200}` | `id` matches `^[a-z][a-z0-9-]{0,23}$` and MUST NOT be a script name |
+| `actions` | no | list ≤ 8 of `{id, label ≤ 24, script, confirm? ≤ 200, root? bool}` | `id` matches `^[a-z][a-z0-9-]{0,23}$` and MUST NOT be a script name. `"root": true`: the action needs root (see [4](#root)) |
 | `settings` | no | list ≤ 16 | See below |
 | `integration` | no | `{"dir": "~/…"}` | A folder under `~/` where the host drops a file describing itself. See [9](#9-integrations) |
 | `links` | no | list ≤ 6 of `{label ≤ 40, url}` | |
@@ -59,6 +59,7 @@ Unknown top-level fields are ignored. Newer manifests still load in older hosts.
 | `os` | Lowercase system names, e.g. `["linux"]` |
 | `arch` | `uname -m` names: `x86_64`, `aarch64`, `armv7l`. `amd64`, `x64`, `arm64` and `armhf` are understood too |
 | `commands` | Programs that MUST be on `PATH` |
+| `root` | Text ≤ 200: **why** the addon needs root, shown to the user before it runs, e.g. `"Installs and configures Postfix and OpenDKIM"`. When present, `install`, `update` and `uninstall` need root. See [4](#root) |
 
 An addon SHOULD set `forge` exactly when it runs on Selkies Forge, and `burrow` exactly when it runs on Burrow.
 
@@ -139,7 +140,24 @@ A host runs a script as `bash <script>`, from the addon's folder, as the host's 
 - `status.name` overrides the card's name while the addon is installed.
 - During a scan, `ADDON_SCAN=1` is set and `ADDON_DATA` is a scratch folder that is deleted afterwards.
 
-A script that needs a password prompt hangs until its timeout. Scripts run unattended: no `sudo` that asks, and no `read`.
+A script that needs a password prompt hangs until its timeout. Scripts run unattended: no `sudo` that asks, and no `read`. An addon that needs root says so instead:
+
+<a id="root"></a>
+### Root
+
+`"requires": {"root": "why"}` means `install`, `update` and `uninstall` need root; an action with `"root": true` does too. A host that supports it (Aegis × Burrow 2.33.0+):
+
+- MUST NOT start such a script before the user agreed. It first checks `sudo -k -n true`. With passwordless sudo it shows a warning, *"‹name› needs administrator (root) access: ‹why›. Continue?"*; otherwise it asks for the user's password and checks it with `sudo -S -k -p '' -v` (on stdin, never in argv or the environment). A wrong password runs nothing. When this user can't use sudo at all, it says so and points to a terminal.
+- MUST keep the password in memory only, under a random token for that one job, gone when the job ends (an hour at most): never on disk, in logs, in the job's output, in settings or in an environment.
+- runs the script with `ADDON_ROOT=1`, `ADDON_ASKPASS_TOKEN` and `SUDO_ASKPASS` (a helper it ships; see [5](#5-the-environment)). The script calls **`sudo -A …`**: sudo runs the helper, which fetches the password from the host, so it never prompts on a terminal. With passwordless sudo the helper is never needed, and `sudo -A` works the same.
+- MUST NOT run a root script on its own: automatic installs, update checks, the watchdog and "start it" repairs skip it and leave a notice instead.
+- reads `update` from the **new** version's manifest: a new version that starts needing root is asked for before its code replaces the old.
+
+For the script:
+
+- `sudo` resets the environment: pass what the root side needs, e.g. `sudo -A env ADDON_DATA="$ADDON_DATA" bash "$ADDON_DIR/weft/root-part.sh"`, or `sudo -A install -m 644 …` one command at a time.
+- Check `ADDON_ROOT` first. A host without root support (Selkies Forge, Burrow before 2.33.0) ignores `requires.root` and the action's `root`, so the manifest still loads, but the script then runs without `SUDO_ASKPASS` and `sudo -A` stops at once ("no askpass program specified") instead of hanging. Say why and exit: `[ "${ADDON_ROOT:-0}" = 1 ] || sudo -n true 2>/dev/null || { echo "::warn this needs root: install it from Aegis × Burrow 2.33+ (it asks), or run sudo bash install.sh"; exit 1; }`. An addon that needs root SHOULD also set `"requires": {"burrow": ">=2.33.0"}`.
+- `detect` and `status` never get root: keep them read-only.
 
 ## 5. The environment
 
@@ -159,8 +177,12 @@ Every host sets these, and passes the rest of its own environment through:
 | `ADDON_HOST_VERSION`, `ADDON_HOST_URL` | The host's version and dashboard |
 | `ADDON_BIND` | The address the host listens on. Listen on the same one |
 | `ADDON_SCAN` | `1` while a scan probes `detect` and `status` |
+| `ADDON_ROOT` | `1` when the user gave this job root ([4](#root)), else `0` |
+| `ADDON_ASKPASS_TOKEN` | Root jobs only: what the askpass helper hands the host. Valid while this job runs |
+| `SUDO_ASKPASS` | Root jobs only: the host's askpass helper, an absolute path. Use `sudo -A` |
 
-- **Twins.** Every `ADDON_X` above (except `ADDON_HOST*`) is also set as `FORGE_ADDON_X`, for scripts written before spec 1 had universal names. New scripts SHOULD read `ADDON_*`.
+- **Twins.** Every `ADDON_X` above (except `ADDON_HOST*`, `ADDON_ROOT` and `ADDON_ASKPASS_TOKEN`) is also set as `FORGE_ADDON_X`, for scripts written before spec 1 had universal names. New scripts SHOULD read `ADDON_*`.
+- A host MUST NOT pass `ADDON_ROOT`, `ADDON_ASKPASS_TOKEN` or `SUDO_ASKPASS` through from its own environment: only a root job gets them.
 - **Selkies Forge** adds `FORGE_URL`, `FORGE_API`, `FORGE_HOME`, `FORGE_VERSION`, `FORGE_BIND`, `FORGE_PORT` and `FORGE_ARCH`.
 - **Burrow** adds `BURROW_SOCKET` (2.8.0+: the short path when the data folder is deep, so curl takes it) and `BURROW_NODE` (the Node.js Burrow runs on). When a Selkies Forge has registered with it, Burrow also adds `FORGE_URL`, `FORGE_API` and `FORGE_HOME`.
 
@@ -226,7 +248,7 @@ With `"integration": {"dir": "~/.config/myapp/integrations"}`, a host keeps one 
 | Host | API | Who may call it |
 |---|---|---|
 | Selkies Forge | HTTP at `FORGE_API` (`instances`, `instance/NAME/start\|stop\|restart`, `addons`, …; see its [API docs](https://github.com/adatskov-wcpss/animated-fiesta/blob/main/docs/api.md)) | Anything on this machine. JSON bodies, no foreign `Origin` |
-| Aegis × Burrow | Plain HTTP on the Unix socket `BURROW_SOCKET` (mode 600): `GET /status`, `GET\|POST /tunnels`, `GET\|PATCH\|DELETE /tunnels/PORT`, `POST /module`, `GET /dns` (the linked domain's DNS records, read-only), `/x/<id>/…` (an extension's routes); 2.29+: `GET /addons`, `GET /addons/updates`, `POST /addons/check`, `POST /addons/add {source}`, `POST /addons/<id>/install\|update\|uninstall\|action\|check\|autorestart`, `GET /addons/jobs/<job>` | The same user. Callers SHOULD send `X-Burrow-Client: <id>/<version>` |
+| Aegis × Burrow | Plain HTTP on the Unix socket `BURROW_SOCKET` (mode 600): `GET /status`, `GET\|POST /tunnels`, `GET\|PATCH\|DELETE /tunnels/PORT`, `POST /module`, `GET /dns` (the linked domain's DNS records, read-only), `/x/<id>/…` (an extension's routes); 2.29+: `GET /addons`, `GET /addons/updates`, `POST /addons/check`, `POST /addons/add {source}`, `POST /addons/<id>/install\|update\|uninstall\|action\|check\|autorestart`, `GET /addons/jobs/<job>`; 2.33+: a root operation takes `{password}` (without one, when sudo asks: `428 {needsRoot, reason, passwordless: false}`; wrong: `403 {badPassword}`; no sudo here: `403 {noSudo, why}`), `GET /addons/<id>/root` (`{needsRoot, reason, needs, sudo, passwordless, why}`), and `POST /askpass {"token"}` (the askpass helper's: the running job's password as text, else `404`; only on this socket, never on the dashboard) | The same user. Callers SHOULD send `X-Burrow-Client: <id>/<version>` |
 
 An addon that needs a host API MUST say so with `platforms`.
 
@@ -244,6 +266,7 @@ A host refuses an addon, with a message saying exactly what to fix, when:
 - there are more than 8 actions or 16 settings, a setting key is duplicated, or a `select` has no options;
 - `integration.dir` isn't under `~/`;
 - `update_card` has an unknown key, a value outside its list, a text too long, or an `accent` that isn't `#rrggbb`;
+- `requires.root` isn't text of 1–200 characters, or an action's `root` isn't `true` or `false` (hosts without root support ignore both);
 - an archive breaks any rule in [3](#3-sources).
 
 It won't **install** an addon made for another platform, or one this machine fails (`requires`), and it says why on the card.

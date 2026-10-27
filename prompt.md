@@ -53,7 +53,7 @@ Check every one before you finish:
 - **MUST** be bash, start with `#!/usr/bin/env bash`, use `set -euo pipefail` (status and detect use `set -u`), and source `"$(dirname "$0")/lib.sh"` for the shared helpers.
 - **MUST** read the universal names (`ADDON_ID`, `ADDON_DIR`, `ADDON_DATA`, `ADDON_SETTING_<KEY>`, `ADDON_ADOPT`, `ADDON_UPDATE`, `ADDON_KEEP_DATA`, `ADDON_HOST`, `ADDON_BIND`), or the helper `setting KEY`. Do not invent variables a host doesn't set.
 - **MUST** keep state in `ADDON_DATA` only. `ADDON_DIR` is wiped on every update.
-- **MUST** run unattended: no prompts, no `read`, no `sudo` that asks for a password, and no GUI.
+- **MUST** run unattended: no prompts, no `read`, no `sudo` that asks for a password, and no GUI. An addon that needs root declares `"requires": {"root": "why"}` (or `"root": true` on an action) and calls `sudo -A` (SPEC §4 "Root"): the host asks the user and hands the password over. Never ask for it yourself.
 - **MUST** be idempotent: running `install` twice leaves one working copy, not two.
 - **`detect`** MUST be read-only and quick (≤ 20 s). Exit 0 with one JSON line only when the app is really there; otherwise exit non-zero. A wrong "found" makes hosts link to something that doesn't exist.
 - **`status`** MUST be read-only, quick (≤ 15 s), and end with exactly one JSON line: `state` (`running`, `stopped`, `error` or `installed`), plus `url`, `port`, `version` and `detail` when known. Use `status_line`.
