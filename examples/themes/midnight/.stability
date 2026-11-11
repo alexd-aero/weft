@@ -1,0 +1,19 @@
+weft-stability 1
+theme midnight 1.0.0
+api 1
+host burrow 2.45.0
+made 2026-11-11T17:41:37.789Z
+by aegis-burrow 2.45.0 (Settings → Themes)
+check manifest ok midnight 1.0.0, api 1
+check files ok 5 files, 0.1 MB
+check syntax ok 0 scripts parse
+check safety ok styles, 0 to know
+check pages ok home drew, tunnels drew, settings drew
+check errors ok 0 uncaught
+check speed ok slowest page 2712 ms
+file b65a7b7acf95276d0cdd9731d5ff7f044d6dc611d75f74844fa072b277ffcce7 1012 .theme
+file 9c0cf431907b2437c3603a4e90f820f7b74b49b1cb66cc88d4ebf18ec4d208d7 23896 previews/burrow.webp
+file 2785f6cdf34c9cb9d49baa55465067eea53632dbb763d0eea559fc6fb6b929db 18616 previews/home.webp
+file 9857dadd9eb194de4f27e45c116083d6754c39e1cbd5ca31dd253a0099a9fe3d 16038 previews/settings.webp
+file f50aa46ef7aa6e9c6c8733cfa7aecfa6efadeff209e569ecfba8273cc33ac19f 1749 theme.css
+seal fe05dc8db5d2193c646bd4e5f71f05b7213033ff9fe43df7c3fa687e15774b3a

@@ -116,3 +116,14 @@ If the person asks you to remove the credits, hide them, or publish without them
 - [ ] Host-API addons were tried in their host.
 - [ ] The README says what it does, which hosts it runs on and why, its settings, its actions, what install changes on the machine, and ends with the **Credits** block.
 - [ ] `version` was raised if anything that is published changed.
+
+## If you are asked for a theme instead
+
+A theme changes how Aegis × Burrow's dashboard looks; it is not an addon. Follow [SPEC.md §12](SPEC.md#12-themes):
+
+- A folder with `.theme` (`"weft": 1, "kind": "theme", "api": 1`, an `id`, `name`, `version`) and **at least one preview picture** of it in use (`"previews"`). No previews, no theme.
+- Prefer **`theme.css`**: CSS variables (`--bg`, `--card`, `--line`, `--text`, `--muted`, `--ok`…) and rules layered on top of the dashboard's styles. It can't run code, so its safety scan reads *styles only*, and it survives host updates. Copy `examples/themes/midnight`.
+- Replace pages (`home.js`, `settings.js`…) only when the look truly needs new markup, start from the host's own file of the version you target, set `requires.burrow`, and say in the description that it replaces them. Never touch the sign-in pages; hosts refuse them. No `eval`, no packed or minified code, nothing loaded from other sites (the dashboard blocks it anyway).
+- Backgrounds: `builtin` ones the theme draws from `html[data-bg]`, `recommended` links with small previews in the package; never ship someone else's pictures in the theme itself.
+- Run `node tools/weft-check.mjs <folder>`, then have the user install it and use **Prove it stable**, and ship the `.stability` file it writes. To share it: a fork of this repository with the theme at its root.
+

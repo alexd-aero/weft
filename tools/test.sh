@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export WEFT_MESH="$(mktemp -d)/mesh"     # a mesh of its own: never touches yours
 MESH="$WEFT_MESH"
-node tools/weft-check.mjs examples/* --publish
+node tools/weft-check.mjs $(ls -d examples/*/ | grep -v "^examples/themes/$") examples/themes/*/ --publish
 port=18791
 for ex in hello-weft beacon pulse; do
   for host in selkies-forge burrow; do

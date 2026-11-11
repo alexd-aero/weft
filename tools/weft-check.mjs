@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 // weft-check: validate Weft addons statically. Nothing in them is run.
 //
-//   node tools/weft-check.mjs <addon folder>... [--publish] [--json]
+//   node tools/weft-check.mjs <addon or theme folder>... [--publish] [--json] [--host-version 2.45.0]
+//
+// A folder with a .theme file is a theme (SPEC.md §12): checked with
+// tools/weft-theme.mjs, the same rules Aegis × Burrow applies before anything
+// runs: the manifest, its files, its scripts' syntax, the safety scan and its
+// .stability file.
 //
 // Checks, for each folder:
 //   - forge-addon.json, with exactly the rules both Weft hosts enforce
@@ -284,7 +289,23 @@ const args = process.argv.slice(2);
 const flags = { publish: args.includes("--publish"), json: args.includes("--json") };
 const folders = args.filter((a) => !a.startsWith("--"));
 if (!folders.length) { console.error("usage: node tools/weft-check.mjs <addon folder>... [--publish] [--json]"); process.exit(2); }
-const results = folders.map((f) => check(f, flags));
+const hv = args.includes("--host-version") ? args[args.indexOf("--host-version") + 1] : "2.45.0";
+const T = await import("./weft-theme.mjs");
+function checkTheme(folder) {
+  const r = T.checkFolder(resolve(folder), { version: hv });
+  const notes = [];
+  if (r.m) notes.push(`theme ${r.m.id} ${r.m.version}, theme API ${r.m.api}${r.m.requires?.burrow ? `, needs Aegis × Burrow ${r.m.requires.burrow}` : ""}`);
+  if (r.sorted) notes.push(`${r.sorted.layered ? "theme.css on top of the dashboard's styles" : ""}${r.sorted.layered && r.sorted.replaces.length ? "; " : ""}${r.sorted.replaces.length ? `replaces ${r.sorted.replaces.map((f) => f.rel).join(", ")}` : ""}; ${r.sorted.assets.length} files of its own`);
+  if (r.safety) { notes.push(`safety scan: ${r.safety.level}`); for (const f of r.safety.findings) notes.push(`  ${f.level.padEnd(6)} ${f.what}${f.file ? ` (${f.file}${f.detail ? ", " + f.detail : ""})` : ""}`); }
+  const warnings = [...(r.warnings || [])];
+  if (r.stability) {
+    notes.push(`stability: ${r.stability.level}: ${r.stability.title}`);
+    if (r.stability.level === "unproven") (flags.publish ? (r.errors.push("No .stability file: install it in Aegis × Burrow and use Settings → Themes → Prove it stable."), null) : warnings.push("No .stability file yet: prove it stable in Aegis × Burrow (Settings → Themes) before you share it."));
+    else if (!["stable", "aged"].includes(r.stability.level)) r.errors.push(`.stability: ${r.stability.title}: ${(r.stability.lines || []).join("; ")}`);
+  }
+  return { folder, kind: "theme", ok: !r.errors.length, errors: r.errors, warnings, notes };
+}
+const results = folders.map((f) => existsSync(join(f, ".theme")) ? checkTheme(f) : check(f, flags));
 if (flags.json) console.log(JSON.stringify(results, null, 2));
 else for (const r of results) {
   console.log(`${r.ok ? "\u2714" : "\u2718"} ${r.folder}`);

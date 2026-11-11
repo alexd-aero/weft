@@ -97,6 +97,17 @@ node tools/weft-card.mjs my-addon -o card.html # how its update card will look (
 
 **Building with an AI agent?** Give it **[prompt.md](prompt.md)** first. It is strict on purpose: the exact format, what never to invent, how to prove the addon works, and the credits.
 
+## 🎨 Themes
+
+A Weft **theme** is a new look for Aegis × Burrow's signed-in pages (2.45.0+): a folder with a `.theme` file, previews of it in use, and either a `theme.css` layered on top of the dashboard's own styles or replacements for its pages. Add one in **Settings → Themes** from a `.zip`, a link or a repository; nothing applies until you've seen its previews, a live run of its pages, its safety scan and its `.stability` proof, and confirmed. Themes can bring backgrounds: their own (an aurora), suggested pictures (wallpaperflare links), and yours (pictures, GIFs, videos, kept on your machine).
+
+- Start from [`examples/themes/midnight`](examples/themes/midnight): one stylesheet.
+- Check it: `node tools/weft-check.mjs examples/themes/midnight`.
+- Prove it stable on a real Aegis (Settings → Themes → *Prove it stable*): the `.stability` file says which build was tested, on which version, and how it went.
+- **Share it: fork this repository** and put your theme at the root of the fork. Every Aegis lists it under *Discover*.
+
+The rules: [SPEC.md §12](SPEC.md#12-themes).
+
 ## 🙏 Credits, and publishing yours
 
 Weft, Selkies Forge and Aegis × Burrow are MIT licensed and free. A published Weft addon's README ends with:

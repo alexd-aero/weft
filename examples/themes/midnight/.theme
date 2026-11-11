@@ -1,0 +1,22 @@
+{
+  "weft": 1,
+  "kind": "theme",
+  "api": 1,
+  "id": "midnight",
+  "name": "Midnight",
+  "version": "1.0.0",
+  "description": "Deep ink blue with a teal accent and a dotted night sky. Styles only (one theme.css on top of the dashboard's own), so it can't run code and keeps working as Aegis updates. Copy it to start your own theme.",
+  "author": "Weft",
+  "license": "MIT",
+  "homepage": "https://github.com/alexd-aero/weft/tree/main/examples/themes/midnight",
+  "requires": { "burrow": ">=2.45.0" },
+  "accent": "#2dd4bf",
+  "previews": [
+    { "file": "previews/home.webp", "caption": "Home" },
+    { "file": "previews/burrow.webp", "caption": "Burrow" },
+    { "file": "previews/settings.webp", "caption": "Settings" }
+  ],
+  "onboarding": [
+    { "title": "Made with one stylesheet", "body": "Everything Midnight changes is in theme.css: CSS variables and a few rules, layered on top of Aegis's own styles. Fork alexd-aero/weft, copy examples/themes/midnight, and change the colors to make yours." }
+  ]
+}

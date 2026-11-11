@@ -1,0 +1,35 @@
+/* Midnight, a Weft example theme (weft/examples/themes/midnight).
+   Styles only, layered on top of the dashboard's own (theme.css): deep ink
+   blue, a teal accent, dotted sky. Copy this folder to start your own. */
+:root {
+  --bg: #070b16;
+  --card: #0e1424;
+  --card-2: #0a1020;
+  --raise: #131b2e;
+  --field: #060a14;
+  --line: rgba(140, 170, 255, .08);
+  --line-2: rgba(140, 170, 255, .14);
+  --line-hi: rgba(140, 170, 255, .32);
+  --text: #e6ecf8;
+  --muted: #8b97b2;
+  --faint: #56607a;
+  --ok: #2dd4bf;
+  --mid-accent: #2dd4bf;
+}
+body::before {
+  background-image: radial-gradient(rgba(140, 170, 255, .14) 1px, transparent 1.2px);
+  background-size: 26px 26px;
+}
+body::after { background: radial-gradient(closest-side, rgba(45, 212, 191, .09), transparent); }
+.top { background: rgba(7, 11, 22, .82); border-bottom-color: rgba(140, 170, 255, .1); }
+.card { border-radius: 18px; }
+.card.lit::before { background: linear-gradient(90deg, transparent, rgba(45, 212, 191, .55), transparent); }
+.btn.primary { background: var(--mid-accent); color: #03161a; box-shadow: 0 8px 24px -12px rgba(45, 212, 191, .8); }
+.btn.primary:hover { background: #5eead4; }
+.tabs a.on, .subtabs button.on, .seg button.on { background: rgba(45, 212, 191, .12); color: #ccfbf1; }
+.switch input:checked + i { background: rgba(45, 212, 191, .25); border-color: rgba(45, 212, 191, .5); }
+.switch input:checked + i::after { background: var(--mid-accent); }
+.pill.ok { color: #5eead4; border-color: rgba(45, 212, 191, .4); background: rgba(45, 212, 191, .08); }
+.input:focus { border-color: rgba(45, 212, 191, .55); box-shadow: 0 0 0 3px rgba(45, 212, 191, .12); }
+.opt:hover { border-color: rgba(45, 212, 191, .4); }
+::selection { background: rgba(45, 212, 191, .35); }

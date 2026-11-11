@@ -15,6 +15,7 @@ Weft hosts today: **[Selkies Forge](https://github.com/adatskov-wcpss/animated-f
 - [9. Integrations](#9-integrations)
 - [10. Host APIs](#10-host-apis)
 - [11. Rules every host enforces](#11-rules-every-host-enforces)
+- [12. Themes](#12-themes)
 
 ## 1. The addon
 
@@ -281,3 +282,92 @@ It won't **install** an addon made for another platform, or one this machine fai
 ---
 
 <sub>The Weft Architecture · MIT · the format behind every addon on [Selkies Forge](https://github.com/adatskov-wcpss/animated-fiesta) and [Aegis × Burrow](https://github.com/alexd-aero/aegis-burrow).</sub>
+
+## 12. Themes
+
+A **theme** is a new look for a host's signed-in pages. Aegis × Burrow (2.45.0+) is the theme host today; its rules are in `aegis/themes.mjs`, and `tools/weft-theme.mjs` carries a copy of the static ones (`node tools/weft-check.mjs <theme folder>`).
+
+### 12.1 The package
+
+A theme is **one folder with a file named `.theme`** (JSON) in it, plus what that file points to. It arrives the way an addon does ([3](#3-sources)): an uploaded `.zip` or `.tar.gz`, a download link, or a git repository (GitHub, GitLab with subgroups, any git URL). A host MUST search what it unpacked for `.theme` files, MUST open archives it finds inside (up to three deep), and MUST let the user pick when there is more than one.
+
+| Field | Required | Type and limits | Meaning |
+|---|---|---|---|
+| `weft` | **yes** | `1` | This spec |
+| `kind` | **yes** | `"theme"` | |
+| `api` | **yes** | `1` | The theme API (12.3). A host refuses an API it doesn't speak and says to update |
+| `id` | **yes** | `^[a-z0-9][a-z0-9-]{1,39}$` | MUST NOT change once published |
+| `name`, `version` | **yes** | text ≤ 60; `1.2.3` | |
+| `previews` | **yes** | 1–8 of `"path"` or `{file, caption ≤ 60}`, .png .jpg .webp .gif .avif, ≤ 5 MB each | Pictures of the theme in use. **A theme without previews MUST be refused**: the user confirms on them |
+| `root` | no | a folder in the package | Where its files are (default: next to `.theme`) |
+| `description` ≤ 600, `author` ≤ 80, `license` ≤ 40, `homepage` | no | | |
+| `accent` | no | `#rrggbb` | Its color, for cards and the welcome |
+| `requires.burrow` | no | a range: `">=2.45.0"`, `">=2.45.0 <3"` | |
+| `backgrounds` | no | `{builtin, default, recommended}` | 12.6 |
+| `onboarding` | no | ≤ 8 of `{title ≤ 60, body ≤ 600, image?, button?: {label ≤ 24, href}}` | Its welcome steps, after the host's own. `href` is a path in the dashboard (`/__gate/…`, `/`) or https |
+
+### 12.2 What a theme may change
+
+Under `root`:
+
+- **`theme.css`**: styles **layered on top of** the host's (loaded after `ui.css` on every signed-in page). The easy and durable kind of theme: CSS variables and a few rules, and it keeps working as the host updates. Example: [`examples/themes/midnight`](examples/themes/midnight).
+- **Replacements**, same names as the host's own files: `ui.css`, `home.html`, `tunnels.html`, `settings.html`, `welcome.html`, `common.js`, `home.js`, `tunnels.js`, `settings.js`, `welcome.js`, `fleet.js`, `distros.js`, `themes.js`, `logos/*.svg|png|webp`. A replaced page runs the theme's code in the user's signed-in dashboard; it is tied to the host version it was made from (12.4 says which).
+- **`assets/**`**: its own files (pictures, fonts, video), served under `/__gate/theme/assets/…`.
+
+A host MUST NOT let a theme replace a page or script that sees a password being typed: the sign-in, setup and unlock pages and their scripts (`login.html`, `login.js`, `login.css`, `setup.html`, `unlock.html`). It MUST serve a theme's files only to a signed-in browser (a theme can be private), MUST serve its SVGs sandboxed, and MUST keep the core host script (12.5) in every page whatever the theme.
+
+### 12.3 What happens when one is added
+
+1. **Staged.** Unpacked into a scratch folder; nothing in it runs and nothing changes.
+2. **Report.** The manifest; which files it changes; every script parsed as a module (a script that doesn't parse is refused); the **safety scan** (below); the `.stability` check (12.4).
+3. **Preview.** Its pages, live, in frames on the user's own dashboard (`/__gate/theme-preview/<token>/page/home`), the rest of the dashboard unchanged. The core host script in each frame reports how the page did (drew something, errors, time): the **live stability run**.
+4. **Confirm.** The user looks at the previews and the live run and says so. Then it applies; the version before is kept (one click back), and so is the way out: Settings → Themes → *Use the default look*, `/__gate/theme-off` (this browser), `aegis themes off`.
+
+**The safety scan** reads the code statically and says what it touches: *styles only* (it can't run anything), the replaced pages that handle secrets (Settings: the password form; Burrow: tunnel passwords), calls to the dashboard's sensitive APIs and whether the page it replaces needs them, and what a look never needs: code made from text (`eval`, `new Function`), packed or obfuscated code, saved-password access. Those are **danger**: the host MUST ask the user to say they trust the author before it applies. The dashboard's content policy stays in force for every theme: nothing loads from other sites.
+
+### 12.4 `.stability`
+
+The proof that a theme is the very build that was tested, and how the test went. A host MUST check it and show the result; it MAY install an unproven theme after the live run and the user's confirm.
+
+```
+weft-stability 1
+theme midnight 1.0.0
+api 1
+host burrow 2.45.0
+made 2026-11-11T17:41:52.019Z
+by aegis-burrow 2.45.0 (Settings → Themes)
+check manifest ok midnight 1.0.0, api 1
+check files ok 5 files, 0.2 MB
+check syntax ok 0 scripts parse
+check safety ok styles, 0 to know
+check pages ok home drew, tunnels drew, settings drew
+check errors ok 0 uncaught
+check speed ok slowest page 2704 ms
+file <sha256> <bytes> .theme
+file <sha256> <bytes> previews/home.webp
+file <sha256> <bytes> theme.css
+seal <sha256 of every line above it, joined with \n>
+```
+
+- Plain UTF-8, one fact per line, `\n` line ends; `check ID ok|fail DETAIL`; one `file` line per file in the package except `.stability` itself (paths relative to the `.theme` folder, `/`-separated, sorted).
+- **Making one** takes a live run on a real host: Aegis × Burrow, Settings → Themes → the theme → *Prove it stable*. It runs each page with the core host script watching, checks the rest, and refuses to write the file unless every check passes.
+- **Checking one**, a host recomputes everything: the seal (a hand-edited line breaks it: *edited*), every file's SHA-256 (a file changed, added or missing: *changed since it was tested*), the theme and API (*made for another build*). Then the version: tested on this host's major.minor: **stable**; on an older one: *proven on X, you run Y*; on a newer one: *update the host*.
+- It proves **consistency, not authorship**: anyone can make one for their own build. Trust in an author is the user's call; the safety scan informs it.
+
+### 12.5 The core host script
+
+Every signed-in page carries `/__gate/core/host.js` and `host.css` first, with its settings in `<script id="weft-host" type="application/json">`. A theme MUST NOT replace or remove them. The script catches the page's errors (and offers the default look back when a theme broke the page), reports the live run from a preview frame (`postMessage({type: "weft-theme-run", page, errors, ms, ok})` to its own origin), draws the user's background (12.6), and runs the welcome once per applied version: the theme's previews, the background picker, then the theme's `onboarding` steps. `window.WeftHost` exposes `welcome()`, `pickBackground()`, `setBackground(pick)`, `backgrounds()`; the page gets a `weft:background` event when it changes. Its markup uses `.wh-*` and `.weft-*` classes a theme MAY restyle.
+
+### 12.6 Backgrounds
+
+A theme with `backgrounds` draws behind the dashboard, and the user picks what:
+
+- `builtin`: ≤ 8 of `{id, name, swatch}`: backgrounds the theme draws itself (an aurora, plain black). `swatch` is a CSS color or gradient for the picker (no `url()`). The host marks `html[data-bg="<id>"]` before the page paints; the theme's CSS does the rest.
+- `recommended`: ≤ 24 of `{name, url, tags?, preview?}`: pictures the theme suggests: a wallpaperflare page, or a direct link to a picture, GIF or video. Only the link ships with the theme (and a small `preview` from the package, for the picker); the host downloads the picture when the user picks it.
+- **The user's own**, kept on their machine only, never in a theme or the host: uploads (pictures, GIFs, .mp4/.webm videos) and links. **SVG never** (it can carry scripts). A host downloading a link MUST connect only to public addresses, checked again on every redirect. Pictures are kept in three sizes (≤ 3840, 1280 and 40 px wide; the browser makes them); GIFs and videos as they are, with a still. A video plays muted and looped; with reduced motion or data saving, the still shows instead.
+- When a picture is in use the host marks `html[data-bg="media"]` and draws it in `.weft-bg` (`z-index: -1`, under the page) with a shade a theme MAY set: `--weft-shade`.
+
+### 12.7 Discover: sharing a theme
+
+**Fork this repository** and put your theme in the fork with its `.theme` file at the root (and its `.stability`, proven on a real host). Hosts list every fork of `alexd-aero/weft` that has a `.theme` at the root of its default branch, with its previews, under *Discover*, next to the examples in [`examples/themes`](examples/themes); a user previews and installs it with the usual report and confirm. Keep the fork's other files: the spec travels with your theme. A host MUST NOT apply a discovered theme without the same report, preview and confirm as any other.
+
