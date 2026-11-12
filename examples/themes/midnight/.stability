@@ -1,19 +1,33 @@
 weft-stability 1
-theme midnight 1.0.0
+theme midnight 1.1.0
 api 1
-host burrow 2.45.0
-made 2026-11-11T17:41:37.789Z
-by aegis-burrow 2.45.0 (Settings → Themes)
-check manifest ok midnight 1.0.0, api 1
-check files ok 5 files, 0.1 MB
+host burrow 2.46.0
+made 2026-11-12T13:16:48.982Z
+by aegis-burrow 2.46.0 (Settings → Themes)
+check manifest ok midnight 1.1.0, api 1
+check files ok 20 files, 0.3 MB
 check syntax ok 0 scripts parse
 check safety ok styles, 0 to know
 check pages ok home drew, tunnels drew, settings drew
 check errors ok 0 uncaught
-check speed ok slowest page 2712 ms
-file b65a7b7acf95276d0cdd9731d5ff7f044d6dc611d75f74844fa072b277ffcce7 1012 .theme
-file 9c0cf431907b2437c3603a4e90f820f7b74b49b1cb66cc88d4ebf18ec4d208d7 23896 previews/burrow.webp
-file 2785f6cdf34c9cb9d49baa55465067eea53632dbb763d0eea559fc6fb6b929db 18616 previews/home.webp
-file 9857dadd9eb194de4f27e45c116083d6754c39e1cbd5ca31dd253a0099a9fe3d 16038 previews/settings.webp
-file f50aa46ef7aa6e9c6c8733cfa7aecfa6efadeff209e569ecfba8273cc33ac19f 1749 theme.css
-seal fe05dc8db5d2193c646bd4e5f71f05b7213033ff9fe43df7c3fa687e15774b3a
+check speed ok slowest page 2707 ms
+file 982091ff34cddc00973390ba59efe67619660a3b7204463cbfb65de82e3ad32d 6049 .theme
+file 6bf7dc7075e5819b45b3b5f390ffbfce6f3e7872a686d12d02028412640d84c7 21465 previews/bg-blue-forest.jpg
+file b6fd4c0fbf732924ee36dee12a946fabc504782f77656d943909b9f7d7ae5249 11695 previews/bg-blue-lake.jpg
+file 6ff317a68b1667e92b6a0ca489fdc996c1e5469f7f141902e7c75db7ddfc8ce0 17507 previews/bg-clouds.jpg
+file 5beb5a1a2b4f2db844e95dec256d118da0235de98312d63f1c9e8331c2c291fe 20045 previews/bg-corridor.jpg
+file 166e06d85617cc9bd61fb90251eb5fbebc490e7fca15eb63f87b8b8fb300ccf3 6872 previews/bg-dawn-ridges.jpg
+file f10b1a37c35fbdd5549ecc01f844b5fe9b235af01a4f9eff9d08e80a6ab2ce22 14846 previews/bg-dunes.jpg
+file 74f1d938088ef6713c4ce8246ace795d20c5c5a5e8b188d733575ca3d098ea8c 5179 previews/bg-gradient-peaks.jpg
+file 63f310d1cc9908abb1df845ff3605dd6401e48394a3de55c908b26b09bc616ef 10180 previews/bg-lake.jpg
+file 9df74bfa955bd8bebbc8cb9fa6b61628885eada15f36a94f1a4756c4be621c16 10690 previews/bg-loch.jpg
+file 0fc0b9c7f756ee393cd885ae6e759aae03f761c04a706d246ff30001cfc3e057 7472 previews/bg-moon-dunes.jpg
+file 2ee12cd8539082434db68ece38cc2ecfe784718bc7d7f43af9e94f7408fb4b1e 13882 previews/bg-pink-clouds.jpg
+file a92280064b803faffc6a34ae06e45072854da868993fa36422ba223282d865ce 14758 previews/bg-sunset-clouds.jpg
+file 0a442351bb468f0ba9b34bc7bdf7d456a351742e01d4fde004f6988c92ebf976 13727 previews/bg-twilight.jpg
+file 1a967f6896771a5b35d85aa5bef42c2a6aac573ceda268742a21dd5214379ee9 15184 previews/bg-wave.jpg
+file acedacbe23837adfb7607aa079a01626601be7253984d5c6f8ab0d8e81bef752 29068 previews/burrow.webp
+file a79c1a8fb8fea1b7282dd65fc4dab54c9788e0714eff9a1a129e2bfd452bff55 28908 previews/home.webp
+file 5c02200585bfcbe4cba214d4bd4c66aa0d8452821e7156db6a65751928d5d99a 46222 previews/settings.webp
+file 5b56b2cd4241567eb1f5e914e27a3a6fe7e0c5b38c0ba11f28db287c2cdc611c 7310 theme.css
+seal a953e8851160c4135ff0bb0782eb81e209156d536c23729175399d7a5d8cc3ae

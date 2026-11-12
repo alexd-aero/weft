@@ -1,35 +1,119 @@
 /* Midnight, a Weft example theme (weft/examples/themes/midnight).
    Styles only, layered on top of the dashboard's own (theme.css): deep ink
-   blue, a teal accent, dotted sky. Copy this folder to start your own. */
+   blue, a teal accent, and liquid glass over a background you pick (one of
+   the three drawn here, or your own picture, GIF or video; the core host does
+   the picking and the drawing, 12.6). Copy this folder to start your own. */
 :root {
   --bg: #070b16;
-  --card: #0e1424;
-  --card-2: #0a1020;
-  --raise: #131b2e;
-  --field: #060a14;
-  --line: rgba(140, 170, 255, .08);
-  --line-2: rgba(140, 170, 255, .14);
-  --line-hi: rgba(140, 170, 255, .32);
+  --card: rgba(14, 20, 38, .46);
+  --card-2: rgba(10, 15, 30, .4);
+  --raise: rgba(255, 255, 255, .07);
+  --field: rgba(0, 4, 14, .32);
+  --line: rgba(160, 190, 255, .09);
+  --line-2: rgba(160, 190, 255, .15);
+  --line-hi: rgba(160, 190, 255, .34);
   --text: #e6ecf8;
-  --muted: #8b97b2;
-  --faint: #56607a;
+  --muted: #93a0bb;
+  --faint: #5c6782;
   --ok: #2dd4bf;
   --mid-accent: #2dd4bf;
+  /* the glass: a tinted pane, a bright edge, a top highlight, a deep blur */
+  --glass: rgba(12, 18, 34, .44);
+  --glass-2: rgba(255, 255, 255, .055);
+  --glass-pop: rgba(14, 19, 34, .74);
+  --glass-edge: rgba(255, 255, 255, .1);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, .09);
+  --glass-blur: blur(26px) saturate(1.6);
+  --glass-shadow: 0 20px 50px -20px rgba(0, 0, 0, .6);
+  --weft-shade: linear-gradient(180deg, rgba(5, 9, 20, .34) 0%, rgba(5, 9, 20, .5) 50%, rgba(5, 9, 20, .72) 100%);
 }
+
+/* ---- the backgrounds drawn here (the user's own pictures are the host's) ---- */
+html { background: var(--bg); }
+.weft-bg-theme { background: var(--bg); }
+html[data-bg="tide"] .weft-bg-theme {
+  background:
+    radial-gradient(60% 50% at 12% 8%, rgba(45, 212, 191, .26), transparent 70%),
+    radial-gradient(55% 55% at 92% 28%, rgba(99, 102, 241, .3), transparent 70%),
+    radial-gradient(70% 60% at 50% 110%, rgba(14, 116, 144, .32), transparent 70%),
+    linear-gradient(160deg, #081226, #050914 60%);
+}
+html[data-bg="ink"] .weft-bg-theme { background: #05070d; }
 body::before {
-  background-image: radial-gradient(rgba(140, 170, 255, .14) 1px, transparent 1.2px);
+  background-image: radial-gradient(rgba(160, 190, 255, .14) 1px, transparent 1.2px);
   background-size: 26px 26px;
 }
 body::after { background: radial-gradient(closest-side, rgba(45, 212, 191, .09), transparent); }
-.top { background: rgba(7, 11, 22, .82); border-bottom-color: rgba(140, 170, 255, .1); }
-.card { border-radius: 18px; }
+html[data-bg="tide"] body::before { opacity: .45; }
+html[data-bg="tide"] body::after, html[data-bg="ink"] body::before, html[data-bg="ink"] body::after,
+html[data-bg="media"] body::before, html[data-bg="media"] body::after { display: none; }
+
+/* ---- glass surfaces ---- */
+.card {
+  border-radius: 18px; background: var(--glass); border-color: var(--glass-edge);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-hi), var(--glass-shadow);
+}
+/* a pane inside a pane is tinted, not blurred again (one blur per layer keeps it smooth) */
+.card .card { background: var(--glass-2); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: var(--glass-hi); }
 .card.lit::before { background: linear-gradient(90deg, transparent, rgba(45, 212, 191, .55), transparent); }
+/* the bar's glass is a layer behind it, not the bar itself: a blurred element
+   hides the page from the blur of anything inside it, like the notices menu */
+.top { background: none; border-bottom-color: var(--glass-edge); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.top::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: rgba(8, 12, 26, .5);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+}
+.shield, .ico, .cz-gear, .empty .big, .ab-ico, .ab-choice-i, .fw-stage b { background: var(--glass-2); border-color: var(--glass-edge); box-shadow: var(--glass-hi); }
+.ico.img { background: rgba(0, 0, 0, .3); }
+
+/* floating things: menus, popovers, the toast, dialogs */
+.nt-pop, .ds-pop, .more-menu, .toast, .fw-tip, .modal, .scrim > .card {
+  background: var(--glass-pop); border-color: var(--glass-edge);
+  -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6);
+  box-shadow: var(--glass-hi), 0 24px 60px -18px rgba(0, 0, 0, .8);
+}
+.more-menu { background: rgba(14, 19, 34, .92); }
+.nt-head { background: rgba(14, 19, 34, .6); border-bottom-color: var(--glass-edge); }
+.scrim { background: rgba(3, 5, 10, .45); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.fw-controls, .fw-legend { background: rgba(10, 14, 26, .7); border-color: var(--glass-edge); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+
+/* fields and switches sit a shade darker than the glass */
+.input, .fld input, .fld select, .addr, .seg, .subtabs { background: var(--field); border-color: var(--glass-edge); }
+.addr .zone-pick option { background: #0e1424; }
+.note-box, .naming, .ab-code, .root-cmd, .th-pre, pre.log, .jlog { background: rgba(0, 4, 14, .3); border-color: var(--glass-edge); }
+.ab-client, .adc .dl, .upd-list, .th-row, .th-box, .fl-choice { background: var(--glass-2); border-color: var(--glass-edge); }
+.bar, .jbar, .fl-meter, .fl-bar i { background: rgba(255, 255, 255, .07); }
+
+/* hover and the chosen thing: brighter glass with the top highlight */
+.tabs a:hover { background: rgba(255, 255, 255, .06); }
+.tabs a.on, .subtabs button.on, .seg button.on { background: rgba(45, 212, 191, .14); color: #ccfbf1; box-shadow: var(--glass-hi); }
+.route.on { background: rgba(45, 212, 191, .1); border-color: rgba(45, 212, 191, .45); }
+.fl-choice:hover { background: rgba(255, 255, 255, .09); }
+
+/* ---- the teal accent ---- */
 .btn.primary { background: var(--mid-accent); color: #03161a; box-shadow: 0 8px 24px -12px rgba(45, 212, 191, .8); }
 .btn.primary:hover { background: #5eead4; }
-.tabs a.on, .subtabs button.on, .seg button.on { background: rgba(45, 212, 191, .12); color: #ccfbf1; }
 .switch input:checked + i { background: rgba(45, 212, 191, .25); border-color: rgba(45, 212, 191, .5); }
 .switch input:checked + i::after { background: var(--mid-accent); }
 .pill.ok { color: #5eead4; border-color: rgba(45, 212, 191, .4); background: rgba(45, 212, 191, .08); }
-.input:focus { border-color: rgba(45, 212, 191, .55); box-shadow: 0 0 0 3px rgba(45, 212, 191, .12); }
+.input:focus, .fld input:focus, .fld select:focus { border-color: rgba(45, 212, 191, .55); box-shadow: 0 0 0 3px rgba(45, 212, 191, .12); }
 .opt:hover { border-color: rgba(45, 212, 191, .4); }
 ::selection { background: rgba(45, 212, 191, .35); }
+
+/* ---- the welcome and the background picker (the host's, restyled to match) ---- */
+.wh-scrim { background: rgba(3, 5, 10, .5); }
+.wh-modal { background: var(--glass-pop); border-color: var(--glass-edge); -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6); box-shadow: var(--glass-hi), 0 40px 120px -40px rgba(0, 0, 0, .95); }
+.wh-modal { --wh-accent: #2dd4bf; }
+.wh-tile.on { border-color: var(--mid-accent); }
+/* short windows: the picture gives up height first, then the words scroll; the buttons always show */
+.wh-shots { width: 100%; max-height: max(150px, calc(100vh - 400px)); max-height: max(150px, calc(100dvh - 400px)); }
+.wh-modal:not(:has(.wh-scroll)) > .wh-head { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.wh-scroll { overscroll-behavior: contain; }
+html:has(> body > .wh-scrim) { overflow: hidden; scrollbar-gutter: stable; }
+
+/* no blur where it can't run smoothly, or the user asked for less */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass: rgba(12, 18, 34, .92); --glass-pop: rgba(14, 19, 34, .97); }
+  .card, .top::before, .nt-pop, .ds-pop, .more-menu, .toast, .modal, .wh-modal { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

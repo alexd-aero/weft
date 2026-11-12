@@ -4,19 +4,183 @@
   "api": 1,
   "id": "midnight",
   "name": "Midnight",
-  "version": "1.0.0",
-  "description": "Deep ink blue with a teal accent and a dotted night sky. Styles only (one theme.css on top of the dashboard's own), so it can't run code and keeps working as Aegis updates. Copy it to start your own theme.",
+  "version": "1.1.0",
+  "description": "Deep ink blue, a teal accent and liquid glass over a background you pick: a dotted night sky, a teal tide, plain ink, a recommended wallpaper, or your own picture, GIF or video. Styles only (one theme.css on top of the dashboard's own), so it can't run code and keeps working as Aegis updates. Copy it to start your own theme.",
   "author": "Weft",
   "license": "MIT",
   "homepage": "https://github.com/alexd-aero/weft/tree/main/examples/themes/midnight",
-  "requires": { "burrow": ">=2.45.0" },
+  "requires": {
+    "burrow": ">=2.45.0"
+  },
   "accent": "#2dd4bf",
   "previews": [
-    { "file": "previews/home.webp", "caption": "Home" },
-    { "file": "previews/burrow.webp", "caption": "Burrow" },
-    { "file": "previews/settings.webp", "caption": "Settings" }
+    {
+      "file": "previews/home.webp",
+      "caption": "Home"
+    },
+    {
+      "file": "previews/burrow.webp",
+      "caption": "Burrow"
+    },
+    {
+      "file": "previews/settings.webp",
+      "caption": "Settings"
+    }
   ],
   "onboarding": [
-    { "title": "Made with one stylesheet", "body": "Everything Midnight changes is in theme.css: CSS variables and a few rules, layered on top of Aegis's own styles. Fork alexd-aero/weft, copy examples/themes/midnight, and change the colors to make yours." }
-  ]
+    {
+      "title": "Liquid glass",
+      "body": "Every card, menu and dialog is a pane of tinted glass that blurs whatever is behind it, so Midnight looks best over a picture. Pick one any time: Settings → Themes → Background."
+    },
+    {
+      "title": "Made with one stylesheet",
+      "body": "Everything Midnight changes is in theme.css: CSS variables and a few rules, layered on top of Aegis's own styles, plus the backgrounds list in .theme. Fork alexd-aero/weft, copy examples/themes/midnight, and change the colors to make yours."
+    }
+  ],
+  "backgrounds": {
+    "builtin": [
+      {
+        "id": "night",
+        "name": "Night sky",
+        "swatch": "radial-gradient(circle at 50% 0%, rgba(45,212,191,.35), transparent 60%), radial-gradient(rgba(160,190,255,.5) 1px, transparent 1.4px) 0 0 / 8px 8px, #070b16"
+      },
+      {
+        "id": "tide",
+        "name": "Tide",
+        "swatch": "radial-gradient(circle at 15% 10%, rgba(45,212,191,.6), transparent 60%), radial-gradient(circle at 90% 30%, rgba(99,102,241,.6), transparent 60%), radial-gradient(circle at 50% 120%, rgba(14,116,144,.6), transparent 60%), #081226"
+      },
+      {
+        "id": "ink",
+        "name": "Ink",
+        "swatch": "#05070d"
+      }
+    ],
+    "default": "night",
+    "recommended": [
+      {
+        "name": "Corridor",
+        "url": "https://www.wallpaperflare.com/ai-art-science-fiction-liminal-space-station-spaceship-wallpaper-yjldn",
+        "tags": [
+          "liminal"
+        ],
+        "preview": "previews/bg-corridor.jpg"
+      },
+      {
+        "name": "Twilight",
+        "url": "https://www.wallpaperflare.com/mountains-twilight-foggy-forest-4k-sky-scenics-nature-wallpaper-iapf",
+        "tags": [
+          "mountains",
+          "fog"
+        ],
+        "preview": "previews/bg-twilight.jpg"
+      },
+      {
+        "name": "Moon dunes",
+        "url": "https://www.wallpaperflare.com/justin-wirtalla-digital-art-artwork-illustration-digital-painting-wallpaper-ydyqv",
+        "tags": [
+          "desert",
+          "minimal"
+        ],
+        "preview": "previews/bg-moon-dunes.jpg"
+      },
+      {
+        "name": "Misty loch",
+        "url": "https://www.wallpaperflare.com/mist-mountains-landscape-reflections-loch-etive-4k-8k-wallpaper-qfhlz",
+        "tags": [
+          "lake",
+          "fog"
+        ],
+        "preview": "previews/bg-loch.jpg"
+      },
+      {
+        "name": "Blue lake",
+        "url": "https://www.wallpaperflare.com/4k-mountains-lake-reflection-wallpaper-bioal",
+        "tags": [
+          "lake",
+          "mountains"
+        ],
+        "preview": "previews/bg-blue-lake.jpg"
+      },
+      {
+        "name": "Blue forest",
+        "url": "https://www.wallpaperflare.com/foggy-forest-4k-wallpaper-sawcr",
+        "tags": [
+          "forest",
+          "fog"
+        ],
+        "preview": "previews/bg-blue-forest.jpg"
+      },
+      {
+        "name": "Sunset clouds",
+        "url": "https://www.wallpaperflare.com/digital-digital-art-artwork-illustration-drawing-digital-painting-wallpaper-gjkgl",
+        "tags": [
+          "clouds",
+          "sky"
+        ],
+        "preview": "previews/bg-sunset-clouds.jpg"
+      },
+      {
+        "name": "Pink clouds",
+        "url": "https://www.wallpaperflare.com/sky-sunset-clouds-pink-neon-purple-pastel-fading-wild-wallpaper-ekjvq",
+        "tags": [
+          "clouds",
+          "sky"
+        ],
+        "preview": "previews/bg-pink-clouds.jpg"
+      },
+      {
+        "name": "Wave",
+        "url": "https://www.wallpaperflare.com/4k-ocean-waves-rolling-waves-wallpaper-bitvx",
+        "tags": [
+          "ocean",
+          "minimal"
+        ],
+        "preview": "previews/bg-wave.jpg"
+      },
+      {
+        "name": "Gradient peaks",
+        "url": "https://www.wallpaperflare.com/minimalism-minimalist-mountains-landscape-hd-4k-5k-8k-wallpaper-cqmzs",
+        "tags": [
+          "minimal",
+          "mountains"
+        ],
+        "preview": "previews/bg-gradient-peaks.jpg"
+      },
+      {
+        "name": "Dawn ridges",
+        "url": "https://www.wallpaperflare.com/silhouette-of-mountains-during-dawn-4k-wallpaper-dark-fog-wallpaper-advda",
+        "tags": [
+          "mountains",
+          "fog"
+        ],
+        "preview": "previews/bg-dawn-ridges.jpg"
+      },
+      {
+        "name": "Dunes",
+        "url": "https://www.wallpaperflare.com/4k-sand-dunes-8k-desert-wallpaper-uqxft",
+        "tags": [
+          "desert"
+        ],
+        "preview": "previews/bg-dunes.jpg"
+      },
+      {
+        "name": "Aurora lake",
+        "url": "https://www.wallpaperflare.com/blue-body-of-water-aurora-borealis-above-the-body-of-water-beside-the-mountain-wallpaper-pw",
+        "tags": [
+          "aurora",
+          "lake"
+        ],
+        "preview": "previews/bg-lake.jpg"
+      },
+      {
+        "name": "Above the clouds",
+        "url": "https://www.wallpaperflare.com/milky-way-nature-sky-atmosphere-geological-phenomenon-outer-space-wallpaper-glos",
+        "tags": [
+          "stars",
+          "clouds"
+        ],
+        "preview": "previews/bg-clouds.jpg"
+      }
+    ]
+  }
 }
